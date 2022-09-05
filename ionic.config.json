@@ -1,0 +1,7 @@
+{
+  "name": "baby-kick-counter",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
