@@ -1,5 +1,5 @@
 {
-  "name": "baby-kick-counter",
+  "name": "kick-counter",
   "integrations": {
     "capacitor": {}
   },
