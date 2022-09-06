@@ -1,6 +1,6 @@
 {
-  "short_name": "Ionic App",
-  "name": "My Ionic App",
+  "short_name": "Kick Counter",
+  "name": "Kick Counter",
   "icons": [
     {
       "src": "assets/icon/favicon.png",

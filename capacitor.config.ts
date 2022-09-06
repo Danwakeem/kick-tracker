@@ -1,7 +1,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
+  appId: 'com.danwakeem.kick-counter',
   appName: 'kick-counter',
   webDir: 'build',
   bundledWebRuntime: false
