@@ -88,6 +88,8 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
     left: 0,
   };
 
+  const hasItems = (kickData?.list || []).length > 0;
+
   return (
     <IonPage>
       <IonContent style={{ '--background': bottom }}>
@@ -142,7 +144,21 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           </HeaderButtons>
         </HeaderContent>
         <Buffer />
-        <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto' }}>
+        {!hasItems && <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: bottom,
+          maxWidth: '1000px',
+          margin: '0 auto',
+          width: '100%',
+          height: 'calc(100% - 400px)',
+          textAlign: 'center',
+          padding: '10px',
+        }}>
+          <h3>Click start to begin and your count history will show up here.</h3>
+        </div>}
+        {hasItems && <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto' }}>
           {
             (kickData?.list || []).map(({ duration, kicks }: any, index: number) => {
               const formattedDuration = formatDuration(intervalToDuration(duration));
@@ -169,7 +185,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
               );
             })
           }
-        </IonList>
+        </IonList>}
       </IonContent>
     </IonPage>
   );
