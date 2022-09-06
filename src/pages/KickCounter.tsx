@@ -9,6 +9,7 @@ import {
   IonItemSliding,
   IonItemOptions,
   IonItemOption,
+  IonIcon,
 } from '@ionic/react';
 import { format as dfFormat, formatDuration, intervalToDuration } from 'date-fns';
 import pluralize from 'pluralize';
@@ -16,16 +17,19 @@ import styled from 'styled-components';
 import Color from 'color';
 import { StopWatch } from '../components/StopWatch';
 import { fetchData, save } from '../util/storage';
+import { settings, colorPalette } from 'ionicons/icons';
 
 interface ColorInput {
   top: string;
   bottom: string;
 }
 
-const KickCounter: React.FC<{ colors: ColorInput }> = ({
-  colors
+const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
+  colors,
+  newColorIndex
 }: {
   colors: ColorInput
+  newColorIndex: any,
 }) => {
   const [kickData, setKickData] = useState<any>({
     list: [],
@@ -62,10 +66,39 @@ const KickCounter: React.FC<{ colors: ColorInput }> = ({
     '--background-focused-opacity': 0.3,
     '--background-hover-opacity': 0.3,
   };
+  const shared = {
+    position: 'absolute',
+    top: 0,
+    '--background': 'transparent',
+    '--box-shadow': 'none',
+    '--background-activated': 'transparent',
+    '--background-focused': 'transparent',
+    '--background-hover': 'transparent',
+    zIndex: 2,
+  };
+  const settingButton = {
+    ...shared,
+    // TODO: Set up a settings page so we can manage notification time
+    // and set up an auto shut off time and a desired kick count
+    display: 'none',
+    right: 0,
+  };
+  const colorButton = {
+    ...shared,
+    left: 0,
+  };
 
   return (
     <IonPage>
       <IonContent style={{ '--background': bottom }}>
+        <div style={{ margin: '0 auto', maxWidth: '1045px', width: '100%', position: 'relative' }}>
+          <IonButton style={colorButton} onClick={newColorIndex}>
+            <IonIcon slot="icon-only" icon={colorPalette} />
+          </IonButton>
+          <IonButton style={settingButton}>
+            <IonIcon slot="icon-only" icon={settings} />
+          </IonButton>
+        </div>
         <HeaderContent color={top}>
           <h1 style={{ margin: 0 }}>{kickCount} {pluralize('Kicks', kickCount)}</h1>
           <StopWatch started={started} duration={duration} setDuration={setDuration} />
@@ -109,7 +142,7 @@ const KickCounter: React.FC<{ colors: ColorInput }> = ({
           </HeaderButtons>
         </HeaderContent>
         <Buffer />
-        <IonList style={{ backgroundColor: bottom }}>
+        <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto' }}>
           {
             (kickData?.list || []).map(({ duration, kicks }: any, index: number) => {
               const formattedDuration = formatDuration(intervalToDuration(duration));

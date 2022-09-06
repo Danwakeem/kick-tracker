@@ -24,11 +24,19 @@ import './index.css';
 import './theme/variables.css';
 import Color from 'color';
 import { colorList } from './util/colorLIst';
+import { useState } from 'react';
 
 setupIonicReact();
 
 const App: React.FC = () => {
-  const {top, bottom} = colorList[Math.floor(Math.random()*colorList.length)];
+  const [colorIndex, setColorIndex] = useState(Math.floor(Math.random()*colorList.length));
+
+  const newColorIndex = () => {
+    const newIndex = Math.floor(Math.random()*colorList.length);
+    setColorIndex(newIndex !== colorIndex ? newIndex : (newIndex + 1) % colorList.length);
+  };
+
+  const {top, bottom} = colorList[colorIndex];
   const bgColor = Color(top).lighten(0.3);
   const themeWrapper = document.querySelector('body');
   if (themeWrapper) {
@@ -36,7 +44,6 @@ const App: React.FC = () => {
   }
   return (
     <IonApp style={{
-      maxWidth: '1000px',
       backgroundColor: top,
       margin: '0 auto',
       filter: 'brighten(20%)'
@@ -44,7 +51,7 @@ const App: React.FC = () => {
       <IonReactRouter>
         <IonRouterOutlet>
           <Route exact path="/counter">
-            <KickCounter colors={{ top, bottom }} />
+            <KickCounter newColorIndex={newColorIndex} colors={{ top, bottom }} />
           </Route>
           <Route exact path="/">
             <Redirect to="/counter" />
