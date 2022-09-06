@@ -1,0 +1,9 @@
+@font-face {
+  font-family: "RobotoMono";
+  src: url("./fonts/RobotoMono-VariableFont_wght.ttf");
+}
+
+* {
+  --ion-font-family: 'RobotoMono';
+  font-family: 'RobotoMono';
+}
