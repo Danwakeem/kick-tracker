@@ -81,7 +81,8 @@
     "@capacitor/cli": "^4.1.0",
     "@types/color": "^3.0.3",
     "@types/pluralize": "^0.0.29",
-    "@types/styled-components": "^5.1.26"
+    "@types/styled-components": "^5.1.26",
+    "cordova-res": "^0.15.4"
   },
   "description": "An Ionic project"
 }

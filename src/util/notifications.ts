@@ -10,7 +10,6 @@ export const grantPermissions = async () => {
     if (isPlatform('ios')) {
       try {
         const { display } = await LocalNotifications.requestPermissions();
-        console.log('display', display);
         const notificationSettings = await fetchData({key: localKey});
         if (display === 'granted') await scheduleNotification(notificationSettings);
       } catch (error) {
