@@ -1,3 +1,4 @@
+/* eslint react-hooks/exhaustive-deps: 0 */
 import { useEffect, useState } from 'react';
 import {
   IonContent,
@@ -10,6 +11,7 @@ import {
   IonItemOptions,
   IonItemOption,
   IonIcon,
+  isPlatform,
 } from '@ionic/react';
 import { format as dfFormat, formatDuration, intervalToDuration } from 'date-fns';
 import pluralize from 'pluralize';
@@ -24,6 +26,8 @@ interface ColorInput {
   bottom: string;
 }
 
+export const timerLimitKey = 'timer-limit-key';
+
 const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors,
   newColorIndex
@@ -31,6 +35,10 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors: ColorInput
   newColorIndex: any,
 }) => {
+  const [timerLimits, setTimerLimits] = useState<any>({
+    kickLimit: 10,
+    timerLimit: 3600000, // 1 hour
+  });
   const [kickData, setKickData] = useState<any>({
     list: [],
   });
@@ -41,11 +49,39 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   });
   const [started, setStarted] = useState(false);
 
+  const toggleStarted = async () => {
+    if (started) {
+      const newKickData = {
+        ...kickData,
+        list: [
+          { kicks: kickCount, duration },
+          ...kickData.list,
+        ],
+      };
+      await save({
+        value: newKickData,
+      });
+      setKickData(newKickData);
+    } else {
+      setKickCount(0);
+    }
+    setStarted(!started);
+  }
+
+  // End timer at kick limit
+  useEffect(() => {
+    if (kickCount === timerLimits.kickLimit) toggleStarted();
+  }, [kickCount]);
+
   useEffect(() => {
     const loadData = async () => {
-      const data = await fetchData({});
+      const timerData = await fetchData({ key: timerLimitKey });
+      const data = await fetchData();
       if ('list' in data) {
         setKickData(data);
+      }
+      if (Object.keys(timerData).length > 0) {
+        setTimerLimits(timerData);
       }
     }
     loadData();
@@ -68,7 +104,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   };
   const shared = {
     position: 'absolute',
-    top: 0,
+    top: isPlatform('ios') ? '40px' : 0,
     '--background': 'transparent',
     '--box-shadow': 'none',
     '--background-activated': 'transparent',
@@ -106,24 +142,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           <StopWatch started={started} duration={duration} setDuration={setDuration} />
           <HeaderButtons>
             <IonButton
-              onClick={async () => {
-                if (started) {
-                  const newKickData = {
-                    ...kickData,
-                    list: [
-                      { kicks: kickCount, duration },
-                      ...kickData.list,
-                    ],
-                  };
-                  await save({
-                    value: newKickData,
-                  });
-                  setKickData(newKickData);
-                } else {
-                  setKickCount(0);
-                }
-                setStarted(!started);
-              }}
+              onClick={toggleStarted}
               shape="round"
               style={headerButton}
             >

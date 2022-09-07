@@ -22,7 +22,7 @@ export const fetchData = async ({
   key = DEFAULT_KEY,
 } : {
   key?: string;
-}) => {
+} = {}) => {
   const browser = document.URL.startsWith('http');
   if (browser) {
     const data = window.localStorage.getItem(key) || '{}';

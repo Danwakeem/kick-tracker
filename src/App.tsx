@@ -24,7 +24,8 @@ import './index.css';
 import './theme/variables.css';
 import Color from 'color';
 import { colorList } from './util/colorLIst';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { grantPermissions } from './util/notifications';
 
 setupIonicReact();
 
@@ -35,6 +36,11 @@ const App: React.FC = () => {
     const newIndex = Math.floor(Math.random()*colorList.length);
     setColorIndex(newIndex !== colorIndex ? newIndex : (newIndex + 1) % colorList.length);
   };
+
+  // Grant local notification permissions
+  useEffect(() => {
+    grantPermissions();
+  }, []);
 
   const {top, bottom} = colorList[colorIndex];
   const bgColor = Color(top).lighten(0.3);
