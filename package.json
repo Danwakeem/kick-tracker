@@ -55,6 +55,8 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:ios": "ionic capacitor run ios -l --external",
+    "build:ios": "ionic capacitor build ios --prod",
     "build": "react-scripts build",
     "test": "react-scripts test --transformIgnorePatterns 'node_modules/(?!(@ionic/react|@ionic/react-router|@ionic/core|@stencil/core|ionicons)/)'",
     "eject": "react-scripts eject"

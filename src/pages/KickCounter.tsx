@@ -129,15 +129,15 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   return (
     <IonPage>
       <IonContent style={{ '--background': bottom }}>
-        <div style={{ margin: '0 auto', maxWidth: '1045px', width: '100%', position: 'relative' }}>
-          <IonButton style={colorButton} onClick={newColorIndex}>
-            <IonIcon slot="icon-only" icon={colorPalette} />
-          </IonButton>
-          <IonButton style={settingButton}>
-            <IonIcon slot="icon-only" icon={settings} />
-          </IonButton>
-        </div>
         <HeaderContent color={top}>
+          <div style={{ margin: '0 auto', maxWidth: '1045px', top: 0, right: 0, left: 0, position: 'absolute' }}>
+            <IonButton style={colorButton} onClick={newColorIndex}>
+              <IonIcon slot="icon-only" icon={colorPalette} />
+            </IonButton>
+            <IonButton style={settingButton}>
+              <IonIcon slot="icon-only" icon={settings} />
+            </IonButton>
+          </div>
           <h1 style={{ margin: 0 }}>{kickCount} {pluralize('Kicks', kickCount)}</h1>
           <StopWatch started={started} duration={duration} setDuration={setDuration} />
           <HeaderButtons>
@@ -177,7 +177,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
         }}>
           <h3>Click start to begin and your count history will show up here.</h3>
         </div>}
-        {hasItems && <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto' }}>
+        {hasItems && <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto', minHeight: '50%' }}>
           {
             (kickData?.list || []).map(({ duration, kicks }: any, index: number) => {
               const formattedDuration = formatDuration(intervalToDuration(duration));
