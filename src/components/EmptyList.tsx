@@ -10,7 +10,7 @@ export const EmptyList = ({
   if (hasItems) return null;
   return (
     <ListContainer color={bottom}>
-      <h3>Click start to begin and your count history will show up here.</h3>
+      <h3 data-testid="message">Click start to begin and your count history will show up here.</h3>
     </ListContainer>
   );
 };
