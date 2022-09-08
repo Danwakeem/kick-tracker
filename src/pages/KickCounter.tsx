@@ -1,4 +1,3 @@
-/* eslint react-hooks/exhaustive-deps: 0 */
 import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import {
   IonContent,
@@ -77,8 +76,23 @@ const reducer = (state: any, action: any) => {
       };
     }
     case 'INCREMENT_KICK_COUNT':
+      const newCount = state.kickCount + 1;
+      let started = state.started;
+      let kickData = state.kickData;
+      if (newCount === state.timerLimits.kickLimit) {
+        started = false;
+        kickData = {
+          ...kickData,
+          list: [
+            { kicks: newCount, duration: state.duration },
+            ...kickData.list,
+          ],
+        };
+      }
       return {
         ...state,
+        kickData,
+        started,
         kickCount: state.kickCount + 1,
       };
     default:
@@ -116,11 +130,10 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
     kickCount,
     started,
     duration,
-    timerLimits: { kickLimit },
     kickData: listData,
     initialized,
   } = state;
-  const kickData: any = useMemo(() => listData, [JSON.stringify(listData)]);
+  const kickData: any = useMemo(() => listData, [listData]);
   const { list } = kickData;
 
   const setDuration = useCallback((data: any) => {
@@ -153,12 +166,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
         });
       }
     })();
-  }, [kickData, initialized])
-
-  // End timer at kick limit
-  useEffect(() => {
-    if (kickCount === kickLimit) toggleStarted();
-  }, [kickCount, kickLimit]);
+  }, [kickData, initialized]);
 
   useEffect(() => {
     const loadData = async () => {
