@@ -1,5 +1,5 @@
 /* eslint react-hooks/exhaustive-deps: 0 */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import {
   IonContent,
   IonPage,
@@ -26,6 +26,66 @@ interface ColorInput {
   bottom: string;
 }
 
+const reducer = (state: any, action: any) => {
+  switch (action.type) {
+    case 'SET_TIMER_LIMITS':
+      return {
+        ...state,
+        timerLimits: action.data,
+      };
+    case 'SET_DURATION': {
+      return {
+        ...state,
+        duration: action.data,
+      };
+    }
+    case 'INIT_USER_DATA': {
+      return {
+        ...state,
+        ...(action.timerLimits ? {timerLimits: action.timerLimits} : {}),
+        ...(action.kickData ? {kickData: action.kickData} : {}),
+        initialized: true,
+      };
+    }
+    case 'REMOVE_FROM_KICK_LIST': {
+      return {
+        ...state,
+        kickData: {
+          ...state.kickData,
+          list: state.kickData.list.filter((_: any, i: number) => i !== action.data),
+        },
+      };
+    }
+    case 'START': {
+      return {
+        ...state,
+        kickCount: 0,
+        started: true,
+      };
+    }
+    case 'ADD_TO_KICK_LIST': {
+      return {
+        ...state,
+        started: false,
+        kickData: {
+          ...state.kickData,
+          list: [
+            action.data,
+            ...state.kickData.list,
+          ],
+        },
+      };
+    }
+    case 'INCREMENT_KICK_COUNT':
+      return {
+        ...state,
+        kickCount: state.kickCount + 1,
+      };
+    default:
+      throw new Error();
+  }
+};
+
 export const timerLimitKey = 'timer-limit-key';
 
 const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
@@ -35,54 +95,80 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors: ColorInput
   newColorIndex: any,
 }) => {
-  const [timerLimits, setTimerLimits] = useState<any>({
-    kickLimit: 10,
-    timerLimit: 3600000, // 1 hour
+  const [state, setState] = useReducer(reducer, {
+    initialized: false,
+    timerLimits: {
+      kickLimit: 10,
+      timerLimit: 3600000, // 1 hour
+    },
+    kickData: {
+      list: [],
+    },
+    kickCount: 0,
+    duration: {
+      start: 0,
+      end: 0,
+    },
+    started: false,
   });
-  const [kickData, setKickData] = useState<any>({
-    list: [],
-  });
-  const [kickCount, setKickCount] = useState(0);
-  const [duration, setDuration] = useState({
-    start: 0,
-    end: 0,
-  });
-  const [started, setStarted] = useState(false);
 
-  const toggleStarted = async () => {
+  const {
+    kickCount,
+    started,
+    duration,
+    timerLimits: { kickLimit },
+    kickData: listData,
+    initialized,
+  } = state;
+  const kickData: any = useMemo(() => listData, [JSON.stringify(listData)]);
+  const { list } = kickData;
+
+  const setDuration = useCallback((data: any) => {
+    setState({
+      type: 'SET_DURATION',
+      data,
+    })
+  }, []);
+
+  const toggleStarted = () => {
     if (started) {
-      const newKickData = {
-        ...kickData,
-        list: [
-          { kicks: kickCount, duration },
-          ...kickData.list,
-        ],
-      };
-      await save({
-        value: newKickData,
+      setState({
+        type: 'ADD_TO_KICK_LIST',
+        data: { kicks: kickCount, duration },
       });
-      setKickData(newKickData);
     } else {
-      setKickCount(0);
+      setState({
+        type: 'START',
+      });
     }
-    setStarted(!started);
   }
+
+  // Save when the kick data changes
+  // after the first initialization
+  useEffect(() => {
+    (async () => {
+      if (initialized) {
+        await save({
+          value: kickData,
+        });
+      }
+    })();
+  }, [kickData, initialized])
 
   // End timer at kick limit
   useEffect(() => {
-    if (kickCount === timerLimits.kickLimit) toggleStarted();
-  }, [kickCount]);
+    if (kickCount === kickLimit) toggleStarted();
+  }, [kickCount, kickLimit]);
 
   useEffect(() => {
     const loadData = async () => {
-      const timerData = await fetchData({ key: timerLimitKey });
-      const data = await fetchData();
-      if ('list' in data) {
-        setKickData(data);
-      }
-      if (Object.keys(timerData).length > 0) {
-        setTimerLimits(timerData);
-      }
+      const timerLimits = await fetchData({ key: timerLimitKey });
+      const kickData = await fetchData();
+      setState({
+        type: 'INIT_USER_DATA',
+        ...(('list' in kickData) ? {kickData} : {}),
+        ...((Object.keys(timerLimits).length > 0) ? {timerLimits} : {}),
+      });
     }
     loadData();
   }, []);
@@ -124,7 +210,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
     left: 0,
   };
 
-  const hasItems = (kickData?.list || []).length > 0;
+  const hasItems = (list || []).length > 0;
 
   return (
     <IonPage>
@@ -152,9 +238,9 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
               shape="round"
               disabled={!started}
               onClick={() => {
-                if (started) {
-                  setKickCount(kickCount + 1);
-                }
+                setState({
+                  type: 'INCREMENT_KICK_COUNT',
+                });
               }}
               style={headerButton}
             >
@@ -179,7 +265,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
         </div>}
         {hasItems && <IonList style={{ backgroundColor: bottom, maxWidth: '1000px', margin: '0 auto', minHeight: '50%' }}>
           {
-            (kickData?.list || []).map(({ duration, kicks }: any, index: number) => {
+            (list || []).map(({ duration, kicks }: any, index: number) => {
               const formattedDuration = formatDuration(intervalToDuration(duration));
               return (
                 <IonItemSliding key={duration?.start}>
@@ -191,13 +277,11 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
                     <IonLabel slot="end">Kicks: {kicks}</IonLabel>
                   </IonItem>
                   <IonItemOptions side="end">
-                    <IonItemOption color="danger" expandable onClick={async () => {
-                      const finalData = {
-                        ...kickData,
-                        list: kickData.list.filter((_: any, i: number) => index !== i),
-                      };
-                      setKickData(finalData);
-                      await save({ value: finalData });
+                    <IonItemOption color="danger" expandable onClick={() => {
+                      setState({
+                        type: 'REMOVE_FROM_KICK_LIST',
+                        data: index,
+                      });
                     }}>Delete</IonItemOption>
                   </IonItemOptions>
                 </IonItemSliding>
