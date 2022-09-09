@@ -39,11 +39,6 @@ export interface Duration {
 
 const reducer = (state: State, action: any) => {
   switch (action.type) {
-    case 'SET_TIMER_LIMITS':
-      return {
-        ...state,
-        timerLimits: action.data,
-      };
     case 'SET_DURATION': {
       return {
         ...state,
@@ -112,7 +107,7 @@ const reducer = (state: State, action: any) => {
   }
 };
 
-export const timerLimitKey = 'timer-limit-key';
+export const timerLimitKey = 'timer-limits';
 
 const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors,

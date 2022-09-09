@@ -28,6 +28,6 @@ export const fetchData = async ({
     const data = window.localStorage.getItem(key) || '{}';
     return JSON.parse(data);
   } else {
-    return storage.getItem('kick-counter');
+    return storage.getItem(key);
   }
 };
