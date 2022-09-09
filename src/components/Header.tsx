@@ -57,7 +57,7 @@ export const Header = ({
     ...shared,
     // TODO: Set up a settings page so we can manage notification time
     // and set up an auto shut off time and a desired kick count
-    display: 'none',
+    // display: 'none',
     right: 0,
   };
   const colorButton = {
