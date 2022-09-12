@@ -26,6 +26,7 @@ import Color from 'color';
 import { colorList } from './util/colorLIst';
 import { useEffect, useState } from 'react';
 import { grantPermissions } from './util/notifications';
+import { fetchData } from './util/storage';
 
 setupIonicReact();
 
@@ -40,6 +41,13 @@ const App: React.FC = () => {
   // Grant local notification permissions
   useEffect(() => {
     grantPermissions();
+    const loadColor = async () => {
+      const data = await fetchData({ key: 'color-key' });
+      if (data.color && data.color !== -1) {
+        setColorIndex(data.color);
+      }
+    };
+    loadColor();
   }, []);
 
   const {top, bottom} = colorList[colorIndex];

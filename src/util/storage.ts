@@ -1,6 +1,23 @@
-import { NativeStorage as storage } from '@awesome-cordova-plugins/native-storage';
+import { Storage, Drivers } from '@ionic/storage';
+import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 
-const DEFAULT_KEY = 'kick-counter';
+export const DEFAULT_KEY = 'kick-counter';
+export const store = new Storage({
+  driverOrder: [
+    CordovaSQLiteDriver._driver,
+    Drivers.IndexedDB,
+    Drivers.LocalStorage
+  ],
+});
+let isCreated = false;
+(async () => {
+  try {
+    await store.create();
+    isCreated = true;
+  } catch(error) {
+    console.error(error);
+  }
+})();
 
 export const save = async ({
   key = DEFAULT_KEY,
@@ -9,25 +26,28 @@ export const save = async ({
   key?: string;
   value: any;
 }) => {
-  const browser = document.URL.startsWith('http');
-  if (browser) {
-    window.localStorage.setItem(key, JSON.stringify(value));
-  } else {
-    await storage.setItem(key, value);
+  try {
+    // Wait for store to be created
+    while (!isCreated) {}
+    await store.set(key, JSON.stringify(value));
+  } catch(error) {
+    console.log(error);
+    throw error;
   }
   return value;
 };
 
 export const fetchData = async ({
-  key = DEFAULT_KEY,
+  key,
 } : {
-  key?: string;
-} = {}) => {
-  const browser = document.URL.startsWith('http');
-  if (browser) {
-    const data = window.localStorage.getItem(key) || '{}';
-    return JSON.parse(data);
-  } else {
-    return storage.getItem(key);
+  key: string;
+}) => {
+  try {
+    while (!isCreated) {}
+    const data = await store.get(key);
+    return JSON.parse(data || '{}');
+  } catch(error) {
+    console.log(error);
+    throw error;
   }
 };

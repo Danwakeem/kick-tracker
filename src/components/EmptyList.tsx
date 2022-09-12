@@ -1,13 +1,23 @@
+import { IonSpinner } from "@ionic/react";
 import styled from "styled-components";
 
 export const EmptyList = ({
   hasItems,
   bottom,
+  initialized,
 }: {
   hasItems: boolean;
   bottom: string;
+  initialized: boolean;
 }) => {
   if (hasItems) return null;
+  if (!initialized) {
+    return (
+      <ListContainer color={bottom}>
+        <IonSpinner />
+      </ListContainer>
+    )
+  }
   return (
     <ListContainer color={bottom}>
       <h3 data-testid="message">Click start to begin and your count history will show up here.</h3>

@@ -1,13 +1,14 @@
-import { useCallback, useEffect, useMemo, useReducer } from 'react';
+import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
 import {
   IonContent,
   IonPage,
 } from '@ionic/react';
 import styled from 'styled-components';
-import { fetchData, save } from '../util/storage';
+import { DEFAULT_KEY, fetchData, save } from '../util/storage';
 import { Header } from '../components/Header';
 import { EmptyList } from '../components/EmptyList';
 import { KickList } from '../components/KickList';
+import { SettingsModal } from '../components/SettingsModal';
 
 interface ColorInput {
   top: string;
@@ -116,6 +117,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors: ColorInput
   newColorIndex: any,
 }) => {
+  const modal = useRef<HTMLIonModalElement>();
   const [state, setState] = useReducer(reducer, {
     initialized: false,
     timerLimits: {
@@ -177,13 +179,17 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
 
   useEffect(() => {
     const loadData = async () => {
-      const timerLimits = await fetchData({ key: timerLimitKey });
-      const kickData = await fetchData();
-      setState({
-        type: 'INIT_USER_DATA',
-        ...(('list' in kickData) ? {kickData} : {}),
-        ...((Object.keys(timerLimits).length > 0) ? {timerLimits} : {}),
-      });
+      try {
+        const timerLimits = await fetchData({ key: timerLimitKey });
+        const kickData = await fetchData({ key: DEFAULT_KEY });
+        setState({
+          type: 'INIT_USER_DATA',
+          ...(('list' in kickData) ? {kickData} : {}),
+          ...((Object.keys(timerLimits).length > 0) ? {timerLimits} : {}),
+        });
+      } catch (error) {
+        console.log('Failure in hook', error);
+      }
     }
     loadData();
   }, []);
@@ -206,7 +212,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           setState={setState}
         />
         <Buffer />
-        <EmptyList hasItems={hasItems} bottom={bottom} />
+        <EmptyList initialized={initialized} hasItems={hasItems} bottom={bottom} />
         <KickList
           hasItems={hasItems}
           top={top}
@@ -214,6 +220,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           list={list}
           setState={setState}
         />
+        <SettingsModal modal={modal} willDismiss={() => {}} />
       </IonContent>
     </IonPage>
   );

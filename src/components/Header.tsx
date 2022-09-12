@@ -71,7 +71,7 @@ export const Header = ({
         <IonButton style={colorButton} onClick={newColorIndex}>
           <IonIcon slot="icon-only" icon={colorPalette} />
         </IonButton>
-        <IonButton style={settingButton}>
+        <IonButton id="open-modal" style={settingButton}>
           <IonIcon slot="icon-only" icon={settings} />
         </IonButton>
       </div>
