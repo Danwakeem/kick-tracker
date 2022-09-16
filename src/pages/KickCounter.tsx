@@ -9,6 +9,9 @@ import { Header } from '../components/Header';
 import { EmptyList } from '../components/EmptyList';
 import { KickList } from '../components/KickList';
 import { SettingsModal } from '../components/SettingsModal';
+import JSConfetti from 'js-confetti';
+
+const jsConfetti = new JSConfetti();
 
 interface ColorInput {
   top: string;
@@ -88,6 +91,9 @@ const reducer = (state: State, action: any) => {
       let started = state.started;
       let kickData = state.kickData;
       if (newCount === state.timerLimits.kickLimit) {
+        jsConfetti.addConfetti({
+          emojis: ['🍼', '🤰', '👶', '🦵',],
+        });
         started = false;
         kickData = {
           ...kickData,

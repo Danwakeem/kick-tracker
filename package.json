@@ -29,6 +29,7 @@
     "cordova-sqlite-storage": "^6.0.0",
     "date-fns": "^2.29.2",
     "ionicons": "^6.0.3",
+    "js-confetti": "^0.10.2",
     "localforage-cordovasqlitedriver": "^1.8.0",
     "pluralize": "^8.0.0",
     "react": "^18.2.0",
