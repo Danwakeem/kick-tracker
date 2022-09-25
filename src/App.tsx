@@ -41,7 +41,7 @@ const App: React.FC = () => {
       const newIndex = Math.floor(Math.random()*colorList.length);
       setColorIndex(newIndex !== colorIndex ? newIndex : (newIndex + 1) % colorList.length);
     }
-  }, [setColorIndex]);
+  }, [setColorIndex, colorIndex]);
 
   // Grant local notification permissions
   useEffect(() => {
