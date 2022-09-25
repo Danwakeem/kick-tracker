@@ -4,7 +4,7 @@ import {
   IonPage,
 } from '@ionic/react';
 import styled from 'styled-components';
-import { DEFAULT_KEY, fetchData, save } from '../util/storage';
+import { DEFAULT_KEY, fetchData, save, TIMER_LIMIT_KEY } from '../util/storage';
 import { Header } from '../components/Header';
 import { EmptyList } from '../components/EmptyList';
 import { KickList } from '../components/KickList';
@@ -41,8 +41,14 @@ export interface Duration {
   end: number;
 };
 
-const reducer = (state: State, action: any) => {
+const reducer = (state: State, action: any): State => {
   switch (action.type) {
+    case 'UPDATE_TIMER_LIMITS': {
+      return {
+        ...state,
+        timerLimits: action.data?.timerLimits,
+      }
+    }
     case 'SET_DURATION': {
       return {
         ...state,
@@ -90,7 +96,8 @@ const reducer = (state: State, action: any) => {
       const newCount = state.kickCount + 1;
       let started = state.started;
       let kickData = state.kickData;
-      if (newCount === state.timerLimits.kickLimit) {
+      const kickLimit = state.timerLimits.kickLimit > 0 ? state.timerLimits.kickLimit : 10;
+      if (newCount === kickLimit) {
         jsConfetti.addConfetti({
           emojis: ['🍼', '🤰', '👶', '🦵',],
         });
@@ -113,8 +120,6 @@ const reducer = (state: State, action: any) => {
       throw new Error();
   }
 };
-
-export const timerLimitKey = 'timer-limits';
 
 const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   colors,
@@ -186,7 +191,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
   useEffect(() => {
     const loadData = async () => {
       try {
-        const timerLimits = await fetchData({ key: timerLimitKey });
+        const timerLimits = await fetchData({ key: TIMER_LIMIT_KEY });
         const kickData = await fetchData({ key: DEFAULT_KEY });
         setState({
           type: 'INIT_USER_DATA',
@@ -194,7 +199,7 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           ...((Object.keys(timerLimits).length > 0) ? {timerLimits} : {}),
         });
       } catch (error) {
-        console.log('Failure in hook', error);
+        console.error('Failure in hook', error);
       }
     }
     loadData();
@@ -226,7 +231,12 @@ const KickCounter: React.FC<{ colors: ColorInput, newColorIndex: any }> = ({
           list={list}
           setState={setState}
         />
-        <SettingsModal modal={modal} willDismiss={() => {}} />
+        <SettingsModal newColorIndex={newColorIndex} modal={modal} willDismiss={(data) => {
+          setState({
+            type: 'UPDATE_TIMER_LIMITS',
+            data,
+          });
+        }} />
       </IonContent>
     </IonPage>
   );

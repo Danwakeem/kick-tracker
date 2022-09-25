@@ -2,6 +2,9 @@ import { Storage, Drivers } from '@ionic/storage';
 import * as CordovaSQLiteDriver from 'localforage-cordovasqlitedriver';
 
 export const DEFAULT_KEY = 'kick-counter';
+export const COLOR_KEY = 'color-key';
+export const TIMER_LIMIT_KEY = 'timer-limits';
+export const NOTIFICATION_KEY = 'kick-notification-permissions';
 export const store = new Storage({
   driverOrder: [
     CordovaSQLiteDriver._driver,

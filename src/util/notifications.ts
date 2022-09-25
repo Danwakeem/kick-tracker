@@ -1,8 +1,7 @@
 import { LocalNotifications } from '@capacitor/local-notifications';
 import { isPlatform } from '@ionic/react';
-import { fetchData, save } from './storage';
+import { fetchData, NOTIFICATION_KEY } from './storage';
 
-export const notificationKey = 'kick-notification-permissions';
 const localNotificationKey = 1;
 
 export const grantPermissions = async () => {
@@ -10,8 +9,8 @@ export const grantPermissions = async () => {
     if (isPlatform('ios')) {
       try {
         const { display } = await LocalNotifications.requestPermissions();
-        const notificationSettings = await fetchData({key: notificationKey});
-        if (display === 'granted') await scheduleNotification(notificationSettings);
+        const notificationSettings = await fetchData({key: NOTIFICATION_KEY});
+        if (display === 'granted' && notificationSettings.enabled) await scheduleNotification(notificationSettings);
       } catch (error) {
         console.error('Error: ', error);
       }
@@ -49,20 +48,19 @@ export const scheduleNotification = async ({
             },
           }],
         });
-        const notificationSettings = await fetchData({
-          key: notificationKey
-        });
-        await save({
-          key: notificationKey,
-          value: {
-            ...notificationSettings,
-            title,
-            body,
-            hour,
-            minute,
-          },
-        });
       }
+    }
+  } catch(error) {
+    console.error(error);
+  }
+};
+
+export const cancelNotifications = async () => {
+  try {
+    if (isPlatform('ios')) {
+      await LocalNotifications.cancel({
+        notifications: [{ id: localNotificationKey }],
+      });
     }
   } catch(error) {
     console.error(error);

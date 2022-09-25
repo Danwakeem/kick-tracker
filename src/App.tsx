@@ -23,27 +23,32 @@ import './index.css';
 /* Theme variables */
 import './theme/variables.css';
 import Color from 'color';
-import { colorList } from './util/colorLIst';
-import { useEffect, useState } from 'react';
+import { colorList } from './util/colorList';
+import { useCallback, useEffect, useState } from 'react';
 import { grantPermissions } from './util/notifications';
-import { fetchData } from './util/storage';
+import { COLOR_KEY, fetchData } from './util/storage';
 
 setupIonicReact();
 
 const App: React.FC = () => {
   const [colorIndex, setColorIndex] = useState(Math.floor(Math.random()*colorList.length));
 
-  const newColorIndex = () => {
-    const newIndex = Math.floor(Math.random()*colorList.length);
-    setColorIndex(newIndex !== colorIndex ? newIndex : (newIndex + 1) % colorList.length);
-  };
+  // Get random color or set specific color
+  const newColorIndex = useCallback((num?: number) => {
+    if (typeof num === 'number') {
+      setColorIndex(num);
+    } else {
+      const newIndex = Math.floor(Math.random()*colorList.length);
+      setColorIndex(newIndex !== colorIndex ? newIndex : (newIndex + 1) % colorList.length);
+    }
+  }, [setColorIndex]);
 
   // Grant local notification permissions
   useEffect(() => {
     grantPermissions();
     const loadColor = async () => {
-      const data = await fetchData({ key: 'color-key' });
-      if (data.color && data.color !== -1) {
+      const data = await fetchData({ key: COLOR_KEY });
+      if (typeof data.color === 'number' && data.color !== -1) {
         setColorIndex(data.color);
       }
     };
