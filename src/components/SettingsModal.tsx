@@ -158,7 +158,8 @@ export const SettingsModal = ({
         <IonToolbar>
           <IonTitle>Settings</IonTitle>
           <IonButtons slot="end">
-            <IonButton strong={true} onClick={() => modal.current?.dismiss()}>
+            {/* There is a glitch if the keyboard is open and we close immediately */}
+            <IonButton strong={true} onClick={() => setTimeout(() => modal.current?.dismiss(), 50)}>
               Done
             </IonButton>
           </IonButtons>
@@ -167,7 +168,15 @@ export const SettingsModal = ({
       <IonContent className="ion-padding">
         <IonItem>
           <IonLabel>Set Color</IonLabel>
-          <IonSelect value={selectedColor.color} onIonChange={(event) => setSelectedColor({ color: typeof event.target.value === 'number' ? event.target.value : -1 })} slot="end" interface="popover" placeholder="Color">
+          <IonSelect
+            value={selectedColor.color}
+            onIonChange={(event) => setSelectedColor({
+              color: typeof event.target.value === 'number' ? event.target.value : -1
+            })}
+            slot="end"
+            interface="popover"
+            placeholder="Color"
+          >
             <IonSelectOption value={-1}>random</IonSelectOption>
             {colorList.map((color, index) => (
               <IonSelectOption key={color.name} value={index}>{color.name}</IonSelectOption>
@@ -176,7 +185,7 @@ export const SettingsModal = ({
         </IonItem>
         <IonItem>
           <IonLabel position="floating">Max Kicks</IonLabel>
-          <IonInput type="number" onIonChange={(event) => {
+          <IonInput type="tel" onIonChange={(event) => {
             setTimerLimits({
               ...timerLimits,
               kickLimit: typeof event.target.value === 'number' ? event.target.value : parseInt(event.target.value || '0', 10),
