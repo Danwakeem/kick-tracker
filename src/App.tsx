@@ -1,6 +1,7 @@
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import { Insomnia } from '@awesome-cordova-plugins/insomnia';
 import KickCounter from './pages/KickCounter';
 
 /* Core CSS required for Ionic components to work properly */
@@ -24,11 +25,22 @@ import './index.css';
 import './theme/variables.css';
 import Color from 'color';
 import { colorList } from './util/colorList';
-import { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { grantPermissions } from './util/notifications';
 import { COLOR_KEY, fetchData } from './util/storage';
 
 setupIonicReact();
+
+const KeepAwake = ({ children }: React.PropsWithChildren) => {
+  useEffect(() => {
+    Insomnia.keepAwake();
+  }, []);
+  return (
+    <>
+      {children}
+    </>
+  );
+}
 
 const App: React.FC = () => {
   const [colorIndex, setColorIndex] = useState(Math.floor(Math.random()*colorList.length));
@@ -67,16 +79,18 @@ const App: React.FC = () => {
       margin: '0 auto',
       filter: 'brighten(20%)'
     }}>
-      <IonReactRouter>
-        <IonRouterOutlet>
-          <Route exact path="/counter">
-            <KickCounter newColorIndex={newColorIndex} colors={{ top, bottom }} />
-          </Route>
-          <Route exact path="/">
-            <Redirect to="/counter" />
-          </Route>
-        </IonRouterOutlet>
-      </IonReactRouter>
+      <KeepAwake>
+        <IonReactRouter>
+          <IonRouterOutlet>
+            <Route exact path="/counter">
+              <KickCounter newColorIndex={newColorIndex} colors={{ top, bottom }} />
+            </Route>
+            <Route exact path="/">
+              <Redirect to="/counter" />
+            </Route>
+          </IonRouterOutlet>
+        </IonReactRouter>
+      </KeepAwake>
     </IonApp>
   );
 };
